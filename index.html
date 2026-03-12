@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>College Algebra Adaptive Review</title>
+
+<!-- MathJax -->
+<script>
+window.MathJax = {
+  tex: {inlineMath: [['\\(','\\)'],['$','$']]}
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+body{
+font-family:Arial;
+max-width:800px;
+margin:auto;
+padding:20px;
+background:#f4f6f8;
+}
+
+.card{
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,.15);
+margin-top:20px;
+}
+
+button{
+padding:10px 16px;
+margin:8px;
+font-size:16px;
+cursor:pointer;
+}
+
+.choice{
+display:block;
+margin:8px 0;
+}
+
+.correct{color:green}
+.incorrect{color:red}
+</style>
+</head>
+
+<body>
+
+<h1>College Algebra Adaptive Review</h1>
+
+<div class="card" id="login">
+<label>Enter Student Number:</label><br><br>
+<input id="studentID" placeholder="Student Number">
+<br><br>
+<button onclick="start()">Start Review</button>
+</div>
+
+<div class="card" id="quiz" style="display:none">
+
+<h3 id="topic"></h3>
+
+<div id="question"></div>
+
+<div id="choices"></div>
+
+<br>
+
+<button onclick="showSolution()">Show Solution</button>
+
+<div id="solution" style="margin-top:15px"></div>
+
+<div id="feedback" style="display:none">
+<p>Did you get this correct?</p>
+<button onclick="record(true)">Yes</button>
+<button onclick="record(false)">No</button>
+</div>
+
+</div>
+
+<script>
+
+let student=""
+let progress={}
+
+const QUESTIONS=[
+
+{
+topic:"Quadratics",
+question:"Solve \\(x^2-5x+6=0\\)",
+solution:"Factor: \\((x-2)(x-3)=0\\). Solutions are \\(x=2\\) and \\(x=3\\)."
+},
+
+{
+topic:"Factoring",
+question:"Factor \\(x^2-9\\)",
+solution:"Difference of squares: \\((x-3)(x+3)\\)"
+},
+
+{
+topic:"End Behavior",
+question:"Determine end behavior of \\(f(x)=-2x^3\\)",
+solution:"Odd degree with negative leading coefficient: left up, right down."
+},
+
+{
+topic:"Rational Functions",
+question:"Find vertical asymptotes of \\(f(x)=\\frac{1}{x-4}\\)",
+solution:"Denominator zero at \\(x=4\\). Vertical asymptote: \\(x=4\\)"
+},
+
+{
+topic:"Polynomial Zeros",
+question:"If \\((x-2)\\) is a factor of a polynomial, what is a zero?",
+solution:"Set factor equal to zero: \\(x=2\\)"
+},
+
+{
+topic:"Multiple Choice",
+question:"Which is a factor of \\(x^2-4x+3\\)?",
+choices:["x-1","x+1","x+3","x+4"],
+correct:0,
+solution:"Factor: \\((x-1)(x-3)\\). Correct answer: \\(x-1\\)"
+}
+
+]
+
+function start(){
+
+student=document.getElementById("studentID").value
+
+if(student==""){
+alert("Enter student number")
+return
+}
+
+let saved=localStorage.getItem("progress_"+student)
+
+progress=saved?JSON.parse(saved):{}
+
+document.getElementById("login").style.display="none"
+document.getElementById("quiz").style.display="block"
+
+nextQuestion()
+
+}
+
+let current
+
+function nextQuestion(){
+
+current=QUESTIONS[Math.floor(Math.random()*QUESTIONS.length)]
+
+document.getElementById("topic").innerHTML=current.topic
+document.getElementById("question").innerHTML=current.question
+
+document.getElementById("solution").innerHTML=""
+document.getElementById("feedback").style.display="none"
+
+let choicesDiv=document.getElementById("choices")
+choicesDiv.innerHTML=""
+
+if(current.choices){
+
+current.choices.forEach((c,i)=>{
+
+let btn=document.createElement("button")
+btn.className="choice"
+btn.innerHTML=c
+
+btn.onclick=function(){
+
+if(i==current.correct)
+alert("Correct choice!")
+
+else
+alert("Not correct")
+
+}
+
+choicesDiv.appendChild(btn)
+
+})
+
+}
+
+MathJax.typeset()
+
+}
+
+function showSolution(){
+
+document.getElementById("solution").innerHTML="<b>Solution:</b><br>"+current.solution
+
+document.getElementById("feedback").style.display="block"
+
+MathJax.typeset()
+
+}
+
+function record(correct){
+
+if(!progress[current.topic]) progress[current.topic]={right:0,wrong:0}
+
+if(correct)
+progress[current.topic].right++
+else
+progress[current.topic].wrong++
+
+localStorage.setItem("progress_"+student,JSON.stringify(progress))
+
+nextQuestion()
+
+}
+
+</script>
+
+</body>
+</html>
